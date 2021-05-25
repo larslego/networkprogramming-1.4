@@ -3,7 +3,6 @@ package client.game;
 import client.interfaces.Updateble;
 import javafx.animation.AnimationTimer;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import org.jfree.fx.FXGraphics2D;
 import org.jfree.fx.ResizableCanvas;
 
@@ -19,6 +18,7 @@ public class Game implements Updateble {
         this.borderPane = borderPane;
         this.canvas = new ResizableCanvas(g -> draw(), this.borderPane);
         this.g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
+        this.borderPane.setCenter(this.canvas);
     }
 
     public void run() {
@@ -36,7 +36,7 @@ public class Game implements Updateble {
     }
 
     public void draw() {
-        this.g2d.clearRect(0, 0, (int) this.canvas.getWidth() * 10, (int) this.canvas.getHeight() * 10);
+        this.g2d.clearRect(0, 0, (int) this.canvas.getWidth(), (int) this.canvas.getHeight());
         this.g2d.setBackground(Color.white);
 
         this.g2d.setColor(Color.blue);
