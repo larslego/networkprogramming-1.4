@@ -22,6 +22,7 @@ public class Game implements Updateble {
     }
 
     public void run() {
+        this.canvas.setFocusTraversable(true); //Enable keylisteners on canvas.
         new AnimationTimer() {
             long last = -1;
             @Override
