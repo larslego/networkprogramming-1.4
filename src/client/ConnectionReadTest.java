@@ -13,23 +13,17 @@ public class ConnectionReadTest {
             System.out.println("Waiting for client");
             Socket socket = serverSocket.accept();
             System.out.println("Connected");
+            //We NEED to create an output- and inputstream in this order, otherwise we will create a deadlock.
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
             while (true) {
-                try {
-                    Object o = objectInputStream.readObject();
-                    if (o instanceof Message) {
-                        System.out.println("Received [Message Object]: " + ((Message) o).getMessage());
-                    } else if (o instanceof String) {
-                        System.out.println("Received [String]: " + o);
-                    }
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
+                Object o = objectInputStream.readObject();
+                if (o instanceof String) {
+                    System.out.println("Received [String]: " + o);
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-
     }
 }

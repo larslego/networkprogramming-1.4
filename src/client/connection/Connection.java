@@ -1,7 +1,5 @@
 package client.connection;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -29,6 +27,9 @@ public class Connection {
         this.nickname = nickname;
     }
 
+    /**
+     * Connect to the server and start reading on a separate thread.
+     */
     public void connect() {
         try {
             this.socket = new Socket(this.hostname, this.port);
