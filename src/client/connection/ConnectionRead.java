@@ -1,5 +1,7 @@
 package client.connection;
 
+import client.game.player.Nickname;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;

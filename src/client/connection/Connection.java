@@ -1,5 +1,7 @@
 package client.connection;
 
+import client.game.player.Nickname;
+
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -41,7 +43,7 @@ public class Connection {
             this.readSocketThread.start();
 
             //Send username to the server (can be used as a simple handshake).
-            this.dataOutputStream.writeObject(this.nickname);
+            this.dataOutputStream.writeObject(new Nickname(this.nickname));
             this.dataOutputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();
