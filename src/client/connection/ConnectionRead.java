@@ -1,7 +1,5 @@
 package client.connection;
 
-import client.game.player.Nickname;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
@@ -20,19 +18,21 @@ public class ConnectionRead implements Runnable{
 
     @Override
     public void run() {
+        System.out.println("Reading from server");
         while (this.running) {
             try {
-                if (this.clientInput.available() > 0) {
-                    Object response = this.clientInput.readObject();
-                    //Check what type of data we receive
-                    if (response instanceof String) {
-                        System.out.println("Received: String: " + response);
-                    } else {
-                        System.out.println("Received: Object: " + response);
-                    }
+                System.out.println("Received input");
+                Object response = this.clientInput.readObject();
+                //Check what type of data we receive
+                if (response instanceof String) {
+                    System.out.println("[Server] String: " + response);
+                } else {
+                    System.out.println("[Server] Object: " + response);
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
+                this.running = false;
+                break;
             }
         }
     }

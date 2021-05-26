@@ -8,10 +8,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import server.connection.ClientHandler;
 import server.connection.Connection;
 import server.enums.LogType;
 
 import java.time.LocalTime;
+import java.util.Arrays;
 
 public class Server extends Application {
     private static TextArea consoleArea = new TextArea();
@@ -20,6 +22,7 @@ public class Server extends Application {
     private ListView<String> playerList = new ListView<>();
 
     private Connection connection;
+    private Thread serverThread;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -36,8 +39,8 @@ public class Server extends Application {
         stage.setScene(scene);
         stage.show();
 
-        Thread serverThread = new Thread(this.connection);
-        serverThread.start();
+        this.serverThread = new Thread(this.connection);
+        this.serverThread.start();
     }
 
     private void initialize() {
@@ -46,7 +49,19 @@ public class Server extends Application {
         consoleArea.setEditable(false);
         this.consoleSendText.setOnKeyPressed(e -> {
             if (e.getCode().equals(KeyCode.ENTER) && !this.consoleSendText.getText().isEmpty()) {
-                appendLog(LogType.INFO, this.consoleSendText.getText());
+                String text = this.consoleSendText.getText();
+                appendLog(LogType.INFO, text);
+
+                //Command processing
+                String[] words = text.split(" ");
+                if (words.length > 1) {
+                    if (words[0].equalsIgnoreCase("say")) {
+                        for (ClientHandler c : this.connection.getClients()) {
+                            this.connection.sendObject(c, Arrays.stream(words).skip(0).toString());
+                        }
+                    }
+                }
+
                 this.consoleSendText.clear();
             }
         });
@@ -58,5 +73,19 @@ public class Server extends Application {
         consoleArea.appendText("[" + logType + "]" +
                 "[" + String.format("%tR", LocalTime.now()) + "] " +
                 msg + "\n");
+    }
+
+    @Override
+    public void stop() {
+        appendLog(LogType.INFO, "Stopping server");
+        System.out.println("Stopping server");
+        this.connection.stop();
+        try {
+            this.serverThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Server stopped");
     }
 }

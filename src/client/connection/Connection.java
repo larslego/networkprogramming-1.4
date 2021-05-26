@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class Connection {
+public class Connection implements Runnable {
     //Server details
     private Socket socket;
     private String hostname;
@@ -17,7 +17,7 @@ public class Connection {
     //private Player player; //TODO: Implement player class
 
     //Socket IO
-    private ObjectOutputStream dataOutputStream;
+    private ObjectOutputStream objectOutputStream;
 
     //Threads
     private ConnectionRead connectionRead;
@@ -29,32 +29,11 @@ public class Connection {
         this.nickname = nickname;
     }
 
-    /**
-     * Connect to the server and start reading on a separate thread.
-     */
-    public void connect() {
-        try {
-            this.socket = new Socket(this.hostname, this.port);
-            this.dataOutputStream = new ObjectOutputStream(this.socket.getOutputStream());
-
-            //Create thread to read connection input.
-            this.connectionRead = new ConnectionRead(this.socket);
-            this.readSocketThread = new Thread(this.connectionRead);
-            this.readSocketThread.start();
-
-            //Send username to the server (can be used as a simple handshake).
-            this.dataOutputStream.writeObject(new Nickname(this.nickname));
-            this.dataOutputStream.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void sendObject(Object o) {
-        if (this.socket != null && this.dataOutputStream != null) {
+        if (this.socket != null && this.objectOutputStream != null) {
             try {
-                this.dataOutputStream.writeObject(o);
-                this.dataOutputStream.flush();
+                this.objectOutputStream.writeObject(o);
+                this.objectOutputStream.flush();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -67,10 +46,33 @@ public class Connection {
                 this.connectionRead.setRunning(false);
                 this.readSocketThread.join();
                 this.socket.close();
-                this.dataOutputStream = null;
+                this.objectOutputStream = null;
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * Connect to the server and start reading on a separate thread.
+     */
+    @Override
+    public void run() {
+        try {
+            this.socket = new Socket(this.hostname, this.port);
+            this.objectOutputStream = new ObjectOutputStream(this.socket.getOutputStream());
+
+            //Create thread to read connection input.
+            this.connectionRead = new ConnectionRead(this.socket);
+            this.readSocketThread = new Thread(this.connectionRead);
+            this.readSocketThread.start();
+
+            //Send username to the server (can be used as a simple handshake).
+            this.objectOutputStream.writeObject(new Nickname(this.nickname));
+            this.objectOutputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            disconnect();
         }
     }
 }
