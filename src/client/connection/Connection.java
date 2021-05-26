@@ -43,10 +43,10 @@ public class Connection implements Runnable {
     public void disconnect() {
         if (!this.socket.isClosed()) {
             try {
-                this.connectionRead.setRunning(false);
-                this.readSocketThread.join();
+                System.out.println("Closing socket");
+                this.connectionRead.stop();
                 this.socket.close();
-                this.objectOutputStream = null;
+                this.readSocketThread.join();
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }

@@ -31,13 +31,14 @@ public class ConnectionRead implements Runnable{
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
+                System.out.println("You can ignore this exception if you intended to quit.");
                 this.running = false;
                 break;
             }
         }
     }
 
-    public void setRunning(boolean running) {
-        this.running = running;
+    public void stop() {
+        this.running = false;
     }
 }
