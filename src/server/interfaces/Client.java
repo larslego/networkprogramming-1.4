@@ -26,4 +26,11 @@ public interface Client {
      * @param o Object to send.
      */
     void broadcastObject(Object o);
+
+    /**
+     * Send object to every client but itself.
+     * @param o Object to send.
+     * @param clientHandler ClientHandler to ignore (or the client who sent it).
+     */
+    void broadcastObjectToOthers(ClientHandler clientHandler, Object o);
 }

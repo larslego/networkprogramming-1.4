@@ -130,6 +130,17 @@ public class Connection implements Runnable, Client {
     }
 
     @Override
+    public void broadcastObjectToOthers(ClientHandler clientHandler, Object o) {
+        Iterator<ClientHandler> iterator = this.clients.iterator();
+        while (iterator.hasNext()) {
+            ClientHandler c = iterator.next();
+            if (!c.equals(clientHandler)) {
+                sendObject(c, o);
+            }
+        }
+    }
+
+    @Override
     public void onDisconnect(ClientHandler clientHandler) {
         this.clients.remove(clientHandler);
 

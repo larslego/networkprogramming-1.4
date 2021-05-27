@@ -69,7 +69,7 @@ public class ClientHandler implements Runnable, server.interfaces.Server {
     }
 
     public void stop() {
-        Server.appendLog(LogType.ERROR, this.nickname + " connection lost");
+        Server.appendLog(LogType.ERROR, this.nickname + " lost connection");
         this.client.onDisconnect(this);
     }
 
@@ -94,8 +94,11 @@ public class ClientHandler implements Runnable, server.interfaces.Server {
     public void onObjectReceived(Object o) {
         if (o instanceof String) { //Check what type of object we receive
             if (((String) o).equalsIgnoreCase("quit")) {
-                Server.appendLog(LogType.INFO, this.nickname + "left the server.");
+                this.client.broadcastObjectToOthers(this, this.nickname + " left the server");
+                Server.appendLog(LogType.INFO, this.nickname + " left the server.");
                 this.running = false;
+            } else if (((String) o).startsWith("/")) { //User sent a command
+                Server.appendLog(LogType.INFO, o.toString());
             }
             Server.appendLog(LogType.INFO, this.nickname + ": " + o);
         } else if (o == null || o.equals(-1)) { //Client disconnects

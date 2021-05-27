@@ -55,9 +55,14 @@ public class Server extends Application {
                 String[] words = text.split(" ");
                 if (words.length > 1) {
                     if (words[0].equalsIgnoreCase("say")) {
-                        for (ClientHandler c : this.connection.getClients()) {
-                            this.connection.sendObject(c, Arrays.stream(words).skip(0).toString());
+                        StringBuilder stringBuilder = new StringBuilder();
+                        for (String string : words) {
+                            if (!string.equalsIgnoreCase(words[0])) {
+                                stringBuilder.append(string);
+                                stringBuilder.append(" ");
+                            }
                         }
+                        this.connection.broadcastObject(stringBuilder.toString());
                     } else if (words[0].equalsIgnoreCase("kick")) {
                         Iterator<ClientHandler> iterator = this.connection.getClients().iterator();
                         while (iterator.hasNext()) {
