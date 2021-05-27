@@ -54,9 +54,9 @@ public class ClientHandler implements Runnable, server.interfaces.Server {
                     stop();
                 } else {
                     Object o = this.objectInputStream.readObject(); //Read object
-                    onObjectReceived(o);
+                    onObjectReceived(o); //Fire onObjectReceived event
                 }
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException e) { //Client disconnect on client side
                 if (e instanceof SocketException) {
                     stop();
                     break;
@@ -69,17 +69,16 @@ public class ClientHandler implements Runnable, server.interfaces.Server {
     }
 
     public void stop() {
-        try {
-            this.socket.close();
-            Server.appendLog(LogType.ERROR, this.nickname + " connection reset");
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
+        Server.appendLog(LogType.ERROR, this.nickname + " connection lost");
         this.client.onDisconnect(this);
     }
 
     public String getNickname() {
         return this.nickname;
+    }
+
+    public Socket getSocket() {
+        return this.socket;
     }
 
     public ObjectOutputStream getObjectOutputStream() {

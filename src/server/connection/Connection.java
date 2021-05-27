@@ -121,22 +121,25 @@ public class Connection implements Runnable, Client {
     }
 
     @Override
-    public void broadcastObject(Object o, List<ClientHandler> clientHandlers) {
-        for (ClientHandler clientHandler : clientHandlers) {
-            sendObject(clientHandler, o);
+    public void broadcastObject(Object o) {
+        Server.appendLog(LogType.INFO, o.toString());
+        Iterator<ClientHandler> iterator = this.clients.iterator();
+        while (iterator.hasNext()) {
+            sendObject(iterator.next(), o);
         }
     }
 
     @Override
     public void onDisconnect(ClientHandler clientHandler) {
-//        Iterator<ClientHandler> iterator = this.clients.iterator();
-//        while (iterator.hasNext()) {
-//            ClientHandler c = iterator.next();
-//            if (c.equals(clientHandler)) {
-//                iterator.remove();
-//            }
-//        }
-        broadcastObject(clientHandler.getNickname() + " left the server.", this.clients);
-        Server.appendLog(LogType.INFO, clientHandler.getNickname() + " has left the server.");
+        this.clients.remove(clientHandler);
+
+        if (clientHandler.getSocket().isConnected()) {
+            broadcastObject(clientHandler.getNickname() + " left the server.");
+            try {
+                clientHandler.getSocket().close();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
     }
 }

@@ -25,5 +25,5 @@ public interface Client {
      * Send object to every client.
      * @param o Object to send.
      */
-    void broadcastObject(Object o, List<ClientHandler> clientHandlers);
+    void broadcastObject(Object o);
 }

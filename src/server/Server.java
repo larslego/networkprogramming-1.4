@@ -89,7 +89,6 @@ public class Server extends Application {
     public void stop() {
         appendLog(LogType.INFO, "Stopping server");
         System.out.println("Stopping server");
-        System.out.println("Thread count: " + Thread.activeCount());
         try {
             this.connection.stop();
             this.serverThread.join();
