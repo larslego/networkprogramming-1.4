@@ -10,7 +10,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,10 +21,10 @@ import java.util.concurrent.Executors;
  * Wait for client to join. If a client joins it will create a new ClientHandler on a separate thread.
  */
 public class Connection implements Runnable, Client {
-    private int port;
+    private final int port;
     private ServerSocket serverSocket;
-    private ExecutorService threadPool;
-    private List<ClientHandler> clients = new ArrayList<>();
+    private final ExecutorService threadPool;
+    private final List<ClientHandler> clients = new ArrayList<>();
 
     private boolean running = true;
     private final int maxPlayerCount = 8;
@@ -72,6 +74,10 @@ public class Connection implements Runnable, Client {
             //Close threads
             this.threadPool.shutdown();
         } catch (IOException e) {
+            if (e instanceof SocketException) {
+                stop();
+                return;
+            }
             e.printStackTrace();
             System.out.println("You can ignore this exception if you stopped the server.");
         }
@@ -83,7 +89,11 @@ public class Connection implements Runnable, Client {
 
     public void stop() {
         this.running = false;
-        this.clients.forEach(ClientHandler::stop);
+        Iterator<ClientHandler> iterator = this.clients.iterator();
+        while (iterator.hasNext()) {
+            ClientHandler c = iterator.next();
+            c.stop();
+        }
         try {
             this.serverSocket.close();
         } catch (IOException e) {
@@ -106,13 +116,27 @@ public class Connection implements Runnable, Client {
     @Override
     public void onConnect(ClientHandler clientHandler) {
         this.clients.add(clientHandler);
-        Server.appendLog(LogType.INFO, clientHandler.getNickname() + " joined the server.");
-        this.sendObject(clientHandler, "Welcome to the server");
+        Server.appendLog(LogType.INFO, clientHandler.getNickname() + " joined the server."); //Send join message to server.
+        this.sendObject(clientHandler, "Welcome to the server"); //Send welcome message to the client.
+    }
+
+    @Override
+    public void broadcastObject(Object o, List<ClientHandler> clientHandlers) {
+        for (ClientHandler clientHandler : clientHandlers) {
+            sendObject(clientHandler, o);
+        }
     }
 
     @Override
     public void onDisconnect(ClientHandler clientHandler) {
-        this.clients.remove(clientHandler);
+//        Iterator<ClientHandler> iterator = this.clients.iterator();
+//        while (iterator.hasNext()) {
+//            ClientHandler c = iterator.next();
+//            if (c.equals(clientHandler)) {
+//                iterator.remove();
+//            }
+//        }
+        broadcastObject(clientHandler.getNickname() + " left the server.", this.clients);
         Server.appendLog(LogType.INFO, clientHandler.getNickname() + " has left the server.");
     }
 }

@@ -1,12 +1,15 @@
 package client.connection;
 
 import client.game.player.Nickname;
+import client.interfaces.Client;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
-public class Connection implements Runnable {
+public class Connection implements Runnable, Client {
     //Server details
     private Socket socket;
     private String hostname;
@@ -29,6 +32,7 @@ public class Connection implements Runnable {
         this.nickname = nickname;
     }
 
+    @Override
     public void sendObject(Object o) {
         if (this.socket != null && this.objectOutputStream != null) {
             try {
@@ -40,14 +44,55 @@ public class Connection implements Runnable {
         }
     }
 
+    @Override
+    public boolean connect() {
+        try {
+            this.socket = new Socket(this.hostname, this.port);
+            this.objectOutputStream = new ObjectOutputStream(this.socket.getOutputStream());
+
+            //Create thread to read connection input.
+            this.connectionRead = new ConnectionRead(this.socket, this);
+            this.readSocketThread = new Thread(this.connectionRead);
+            this.readSocketThread.start();
+
+            //Send username to the server (can be used as a simple handshake).
+            this.objectOutputStream.writeObject(new Nickname(this.nickname));
+            this.objectOutputStream.flush();
+            return true;
+        } catch (UnknownHostException e) {
+            System.out.println("Unknown hostname");
+            disconnect();
+            return false;
+        } catch (SocketException e) {
+            System.out.println("Can't connect to server");
+            disconnect();
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            disconnect();
+            System.out.println("Connection error");
+            return false;
+        }
+    }
+
+    @Override
     public void disconnect() {
-        if (!this.socket.isClosed()) {
+        if (this.socket != null) {
             try {
                 System.out.println("Closing socket");
-                this.connectionRead.stop();
+                if (this.connectionRead != null) {
+                    this.connectionRead.stop();
+                }
                 this.socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (this.readSocketThread != null) {
+            try {
                 this.readSocketThread.join();
-            } catch (IOException | InterruptedException e) {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
@@ -58,21 +103,5 @@ public class Connection implements Runnable {
      */
     @Override
     public void run() {
-        try {
-            this.socket = new Socket(this.hostname, this.port);
-            this.objectOutputStream = new ObjectOutputStream(this.socket.getOutputStream());
-
-            //Create thread to read connection input.
-            this.connectionRead = new ConnectionRead(this.socket);
-            this.readSocketThread = new Thread(this.connectionRead);
-            this.readSocketThread.start();
-
-            //Send username to the server (can be used as a simple handshake).
-            this.objectOutputStream.writeObject(new Nickname(this.nickname));
-            this.objectOutputStream.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-            disconnect();
-        }
     }
 }

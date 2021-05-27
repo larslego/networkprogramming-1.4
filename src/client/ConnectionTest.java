@@ -8,7 +8,10 @@ public class ConnectionTest {
     public static void main(String[] args) {
         Connection connection = new Connection("localhost", 4444, "Lars");
         Thread thread = new Thread(connection);
-        thread.start(); //Also connects to the server
+        if (!connection.connect()) {
+            return;
+        }
+        //thread.start(); //Also connects to the server
         Scanner scanner = new Scanner(System.in);
 
         while (true) {

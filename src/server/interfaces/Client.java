@@ -2,6 +2,8 @@ package server.interfaces;
 
 import server.connection.ClientHandler;
 
+import java.util.List;
+
 public interface Client {
     /**
      * This method is called when a client connects.
@@ -18,4 +20,10 @@ public interface Client {
      * @param o Object to be sent.
      */
     void sendObject(ClientHandler clientHandler, Object o);
+
+    /**
+     * Send object to every client.
+     * @param o Object to send.
+     */
+    void broadcastObject(Object o, List<ClientHandler> clientHandlers);
 }

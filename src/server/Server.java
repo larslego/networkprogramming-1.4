@@ -14,6 +14,7 @@ import server.enums.LogType;
 
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.Iterator;
 
 public class Server extends Application {
     private static TextArea consoleArea = new TextArea();
@@ -39,8 +40,6 @@ public class Server extends Application {
         stage.setScene(scene);
         stage.show();
 
-        this.serverThread = new Thread(this.connection);
-        this.serverThread.start();
     }
 
     private void initialize() {
@@ -59,6 +58,15 @@ public class Server extends Application {
                         for (ClientHandler c : this.connection.getClients()) {
                             this.connection.sendObject(c, Arrays.stream(words).skip(0).toString());
                         }
+                    } else if (words[0].equalsIgnoreCase("kick")) {
+                        Iterator<ClientHandler> iterator = this.connection.getClients().iterator();
+                        while (iterator.hasNext()) {
+                            ClientHandler c = iterator.next();
+                            if (c.getNickname().equalsIgnoreCase(words[1])) {
+                                c.kickClient(c);
+                                break;
+                            }
+                        }
                     }
                 }
 
@@ -67,6 +75,8 @@ public class Server extends Application {
         });
 
         this.connection = new Connection(4444);
+        this.serverThread = new Thread(this.connection);
+        this.serverThread.start();
     }
 
     public static void appendLog(LogType logType, String msg) {
@@ -79,13 +89,13 @@ public class Server extends Application {
     public void stop() {
         appendLog(LogType.INFO, "Stopping server");
         System.out.println("Stopping server");
-        this.connection.stop();
+        System.out.println("Thread count: " + Thread.activeCount());
         try {
+            this.connection.stop();
             this.serverThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         System.out.println("Server stopped");
     }
 }
