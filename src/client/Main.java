@@ -1,5 +1,6 @@
 package client;
 
+import client.connection.Connection;
 import client.game.Game;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -39,6 +40,7 @@ public class Main extends Application {
         this.usernameText.setPromptText("Username");
         this.joinButton.setOnAction(e -> {
             //TODO: Implement connecting to server.
+
         });
 
         HBox hBox = new HBox();

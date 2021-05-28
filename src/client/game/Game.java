@@ -17,6 +17,10 @@ public class Game implements Updateble {
     //Input
     private GameInputManager gameInputManager;
 
+    //Player
+    //private Player player;
+    //private List<Player> playerList; //This list contains all players on the server.
+
     public Game(BorderPane borderPane) {
         this.borderPane = borderPane;
         this.canvas = new ResizableCanvas(g -> draw(), this.borderPane);
