@@ -14,15 +14,23 @@ public class Game implements Updateble {
     private FXGraphics2D g2d;
     private BorderPane borderPane;
 
+    //Input
+    private GameInputManager gameInputManager;
+
     public Game(BorderPane borderPane) {
         this.borderPane = borderPane;
         this.canvas = new ResizableCanvas(g -> draw(), this.borderPane);
         this.g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
         this.borderPane.setCenter(this.canvas);
+
+        this.gameInputManager = new GameInputManager();
     }
 
     public void run() {
         this.canvas.setFocusTraversable(true); //Enable keylisteners on canvas.
+        this.canvas.setOnKeyPressed(e -> this.gameInputManager.setKeyPressed(e.getCode()));
+        this.canvas.setOnKeyReleased(e -> this.gameInputManager.setKeyReleased(e.getCode()));
+
         new AnimationTimer() {
             long last = -1;
             @Override
