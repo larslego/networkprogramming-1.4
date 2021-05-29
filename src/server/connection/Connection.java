@@ -1,6 +1,7 @@
 package server.connection;
 
 import client.game.player.Nickname;
+import client.game.player.Player;
 import server.Server;
 import server.enums.LogType;
 import server.interfaces.Client;
@@ -12,6 +13,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -105,6 +107,7 @@ public class Connection implements Runnable, Client {
     @Override
     public void sendObject(ClientHandler clientHandler, Object o) {
         try {
+            clientHandler.getObjectOutputStream().reset();
             clientHandler.getObjectOutputStream().writeObject(o);
             clientHandler.getObjectOutputStream().flush();
         } catch (IOException e) {
@@ -114,15 +117,21 @@ public class Connection implements Runnable, Client {
     }
 
     @Override
-    public void onConnect(ClientHandler clientHandler) {
+    public void onConnect(ClientHandler clientHandler, Player player) {
         this.clients.add(clientHandler);
+        Server.addPlayer(player);
+        Object[] src = Server.getPlayers().getItems().toArray();
+        Player[] players = Arrays.copyOf(src, src.length, Player[].class);
+        broadcastObject(players);
         Server.appendLog(LogType.INFO, clientHandler.getNickname() + " joined the server."); //Send join message to server.
         this.sendObject(clientHandler, "Welcome to the server"); //Send welcome message to the client.
     }
 
     @Override
     public void broadcastObject(Object o) {
-        Server.appendLog(LogType.INFO, o.toString());
+        if (o instanceof String) {
+            Server.appendLog(LogType.INFO, o.toString());
+        }
         Iterator<ClientHandler> iterator = this.clients.iterator();
         while (iterator.hasNext()) {
             sendObject(iterator.next(), o);
@@ -141,8 +150,9 @@ public class Connection implements Runnable, Client {
     }
 
     @Override
-    public void onDisconnect(ClientHandler clientHandler) {
+    public void onDisconnect(ClientHandler clientHandler, Player player) {
         this.clients.remove(clientHandler);
+        Server.removePlayer(player);
 
         if (clientHandler.getSocket().isConnected()) {
             broadcastObject(clientHandler.getNickname() + " left the server.");

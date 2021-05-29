@@ -1,6 +1,8 @@
 package server;
 
+import client.game.player.Player;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
@@ -13,14 +15,12 @@ import server.connection.Connection;
 import server.enums.LogType;
 
 import java.time.LocalTime;
-import java.util.Arrays;
 import java.util.Iterator;
 
 public class Server extends Application {
     private static TextArea consoleArea = new TextArea();
     private TextField consoleSendText = new TextField();
-    //TODO: private ListView<Player> playerListView = new ListView<>();
-    private ListView<String> playerList = new ListView<>();
+    private static ListView<Player> playerListView = new ListView<>();
 
     private Connection connection;
     private Thread serverThread;
@@ -29,7 +29,7 @@ public class Server extends Application {
     public void start(Stage stage) throws Exception {
         BorderPane borderPane = new BorderPane();
 
-        borderPane.setRight(this.playerList);
+        borderPane.setRight(playerListView);
         borderPane.setCenter(consoleArea);
         borderPane.setBottom(this.consoleSendText);
 
@@ -43,7 +43,6 @@ public class Server extends Application {
     }
 
     private void initialize() {
-        this.playerList.getItems().addAll("Tom", "Lars");
         this.consoleSendText.setPromptText("Enter a command. To see all available commands type '/help'.");
         consoleArea.setEditable(false);
         this.consoleSendText.setOnKeyPressed(e -> {
@@ -90,6 +89,14 @@ public class Server extends Application {
                 msg + "\n");
     }
 
+    public static void addPlayer(Player player) {
+        Platform.runLater(() -> playerListView.getItems().add(player));
+    }
+
+    public static void removePlayer(Player player) {
+        Platform.runLater(() -> playerListView.getItems().remove(player));
+    }
+
     @Override
     public void stop() {
         appendLog(LogType.INFO, "Stopping server");
@@ -101,5 +108,9 @@ public class Server extends Application {
             e.printStackTrace();
         }
         System.out.println("Server stopped");
+    }
+
+    public static ListView<Player> getPlayers() {
+        return playerListView;
     }
 }
