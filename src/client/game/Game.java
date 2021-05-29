@@ -41,7 +41,6 @@ public class Game implements Updateble {
     public void start(Player player, String hostname, int port) {
         this.player = player;
         playerList = new Player[] { this.player };
-//        playerList = new Player[] {};
         this.connection = new Connection(hostname, port, player);
         this.camera = new Camera(this.canvas, g -> draw(), this.g2d);
         run();
@@ -55,6 +54,7 @@ public class Game implements Updateble {
 
         if (!this.connection.connect()) {
             System.out.println("Could not open a connection!");
+            //TODO: Add Alert to warn user about not being able to connect.
             return;
         }
 
@@ -74,17 +74,10 @@ public class Game implements Updateble {
     public void draw() {
         this.g2d.clearRect(0, 0, (int) this.canvas.getWidth(), (int) this.canvas.getHeight());
         this.g2d.setBackground(Color.white);
-        AffineTransform oldTransform = this.g2d.getTransform();
+        this.g2d.translate(this.canvas.getWidth() / 2, this.canvas.getHeight() / 2);
         this.g2d.setColor(Color.GREEN);
-        this.g2d.fillRect(0, 0, 40, 40);
+        this.g2d.fillRect(0, 0, 40, 40); //Top left of square is 0, 0.
         this.g2d.setColor(Color.WHITE);
-
-        //Camera movement, TODO: Not working yet
-        if (this.camera != null) {
-            //this.g2d.setTransform(this.camera.getTransform((int) this.canvas.getWidth(), (int) this.canvas.getHeight()));
-        }
-
-        //this.g2d.setTransform(oldTransform);
 
         //Draw every player on the server (including your own player).
         if (playerList != null) {
@@ -92,16 +85,13 @@ public class Game implements Updateble {
             for (Player player : playerList) {
                 if (player != null) {
                     if (player.equals(this.player)) {
-                        //newTransform.translate(-player.getPosition().getX(), -player.getPosition().getY());
+                        newTransform.translate(-player.getPosition().getX(), -player.getPosition().getY());
                     }
                     player.draw(this.g2d);
                 }
-                this.g2d.setTransform(newTransform);
-                //this.g2d.translate(this.player.getPosition().getX(), this.player.getPosition().getY());
             }
+            this.g2d.setTransform(newTransform);
         }
-
-        //this.g2d.setTransform(oldTransform);
     }
 
     public ResizableCanvas getCanvas() {
