@@ -4,12 +4,13 @@ import client.connection.Connection;
 import client.game.player.Nickname;
 import client.game.player.Player;
 
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.Scanner;
 
 public class ConnectionTest {
     public static void main(String[] args) {
-        Connection connection = new Connection("localhost", 4444, new Player(new Nickname("Lars"), new Point2D.Double(0, 0)));
+        Connection connection = new Connection("localhost", 4444, new Player(new Nickname("Lars"), new Point2D.Double(0, 0), Color.BLUE));
         Thread thread = new Thread(connection);
         if (!connection.connect()) {
             return;

@@ -6,9 +6,11 @@ import client.game.player.Player;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.awt.geom.Point2D;
@@ -47,22 +49,32 @@ public class Main extends Application {
         this.hostnameText.setPromptText("Server adress/hostname");
         this.portText.setPromptText("Server port");
         this.usernameText.setPromptText("Username");
+        ColorPicker colorPicker = new ColorPicker(Color.BLUE);
         this.joinButton.setOnAction(e -> {
             String hostname = "";
             int port = 0;
             String nickname = "";
+            Color color = colorPicker.getValue();
 
             if (!this.hostnameText.getText().isEmpty()) { hostname = this.hostnameText.getText(); }
             if (!this.portText.getText().isEmpty()) { port = Integer.parseInt(this.portText.getText()); }
             if (!this.usernameText.getText().isEmpty()) { nickname = this.usernameText.getText(); }
 
             if (!hostname.isEmpty() && port != 0 && !nickname.isEmpty()) {
-                this.game.start(new Player(new Nickname(nickname), new Point2D.Double(0, 0)), hostname, port);
+                this.game.start(new Player(
+                        new Nickname(nickname),
+                        new Point2D.Double(0, 0),
+                        new java.awt.Color( //Convert JavaFX Color to AWT Color.
+                            (float) color.getRed(),
+                            (float) color.getGreen(),
+                            (float) color.getBlue(),
+                            (float) color.getOpacity())),
+                        hostname, port);
             }
         });
 
         HBox hBox = new HBox();
-        hBox.getChildren().addAll(this.hostnameText, this.portText, this.usernameText, this.joinButton);
+        hBox.getChildren().addAll(this.hostnameText, this.portText, this.usernameText, colorPicker, this.joinButton);
         return hBox;
     }
 }

@@ -13,19 +13,19 @@ import java.util.Objects;
 public class Player implements Serializable, Updateble, Drawable {
     private Nickname nickname;
     private Point2D position;
-    private Point2D oldPosition;
+    private Color color;
 
-    public Player(Nickname nickname, Point2D position) {
+    public Player(Nickname nickname, Point2D position, Color color) {
         this.nickname = nickname;
         this.position = position;
-        this.oldPosition = this.position;
+        this.color = color;
     }
 
     @Override
     public void draw(FXGraphics2D g2d) {
         g2d.setColor(Color.BLACK);
         g2d.drawString(this.nickname.toString(), (int) this.position.getX(), (int) this.position.getY() - 10);
-        g2d.setColor(Color.BLUE);
+        g2d.setColor(this.color);
         g2d.draw(new Ellipse2D.Double(this.position.getX(), this.position.getY(), 10, 10));
         g2d.setColor(Color.BLACK);
     }
@@ -48,12 +48,7 @@ public class Player implements Serializable, Updateble, Drawable {
     }
 
     public void setPosition(Point2D position) {
-        this.oldPosition = this.position;
         this.position = position;
-    }
-
-    public Point2D getOldPosition() {
-        return oldPosition;
     }
 
     @Override
