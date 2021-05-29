@@ -103,14 +103,14 @@ public class Game implements Updateble {
         if (this.player != null) {
             int playerX = 0;
             int playerY = 0;
-            int speed;
+            int speed = 1;
 
+            //Set different speed when player is sprinting.
             if (this.gameInputManager.getKeysPressed().contains(KeyCode.SHIFT)) {
                 speed = 2;
-            } else {
-                speed = 1;
             }
 
+            //Check direction controls.
             if (this.gameInputManager.getKeysPressed().contains(KeyCode.W)) {
                 playerY -= speed;
             }
