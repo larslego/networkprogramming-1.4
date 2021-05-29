@@ -14,17 +14,16 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
 public class Game implements Updateble {
-    private ResizableCanvas canvas;
-    private FXGraphics2D g2d;
-    private BorderPane borderPane;
+    private final ResizableCanvas canvas;
+    private final FXGraphics2D g2d;
+    private final BorderPane borderPane;
 
     //Input
-    private GameInputManager gameInputManager;
+    private final GameInputManager gameInputManager;
 
     //Player
     private Player player;
     public static Player[] playerList; //This list contains all players on the server.
-    private Camera camera;
 
     //Connection
     private Connection connection;
@@ -42,7 +41,6 @@ public class Game implements Updateble {
         this.player = player;
         playerList = new Player[] { this.player };
         this.connection = new Connection(hostname, port, player);
-        this.camera = new Camera(this.canvas, g -> draw(), this.g2d);
         run();
     }
 
@@ -74,6 +72,7 @@ public class Game implements Updateble {
     public void draw() {
         this.g2d.clearRect(0, 0, (int) this.canvas.getWidth(), (int) this.canvas.getHeight());
         this.g2d.setBackground(Color.white);
+
         this.g2d.translate(this.canvas.getWidth() / 2, this.canvas.getHeight() / 2);
         this.g2d.setColor(Color.GREEN);
         this.g2d.fillRect(0, 0, 40, 40); //Top left of square is 0, 0.
@@ -130,8 +129,6 @@ public class Game implements Updateble {
                 this.player.update(deltaTime);
                 this.connection.sendObject(this.player);
             }
-            this.camera.setCenterPoint(this.player.getPosition());
-            this.camera.update(deltaTime);
         }
     }
 
