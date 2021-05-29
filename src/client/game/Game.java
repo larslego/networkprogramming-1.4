@@ -75,32 +75,33 @@ public class Game implements Updateble {
         this.g2d.clearRect(0, 0, (int) this.canvas.getWidth(), (int) this.canvas.getHeight());
         this.g2d.setBackground(Color.white);
         AffineTransform oldTransform = this.g2d.getTransform();
-
-        //Camera movement, TODO: Not working yet
-        if (this.camera != null) {
-            this.g2d.setTransform(this.camera.getTransform((int) this.canvas.getWidth(), (int) this.canvas.getHeight()));
-        }
-
-        this.g2d.setTransform(oldTransform);
         this.g2d.setColor(Color.GREEN);
         this.g2d.fillRect(0, 0, 40, 40);
         this.g2d.setColor(Color.WHITE);
+
+        //Camera movement, TODO: Not working yet
+        if (this.camera != null) {
+            //this.g2d.setTransform(this.camera.getTransform((int) this.canvas.getWidth(), (int) this.canvas.getHeight()));
+        }
+
+        //this.g2d.setTransform(oldTransform);
 
         //Draw every player on the server (including your own player).
         if (playerList != null) {
             AffineTransform newTransform = new AffineTransform();
             for (Player player : playerList) {
                 if (player != null) {
-                    //newTransform.translate(player.getPosition().getX(),
-                    //       player.getPosition().getY());
+                    if (player.equals(this.player)) {
+                        //newTransform.translate(-player.getPosition().getX(), -player.getPosition().getY());
+                    }
                     player.draw(this.g2d);
                 }
-                //this.g2d.setTransform(newTransform);
+                this.g2d.setTransform(newTransform);
                 //this.g2d.translate(this.player.getPosition().getX(), this.player.getPosition().getY());
             }
         }
 
-        this.g2d.setTransform(oldTransform);
+        //this.g2d.setTransform(oldTransform);
     }
 
     public ResizableCanvas getCanvas() {
@@ -136,10 +137,8 @@ public class Game implements Updateble {
             if (playerX != 0 || playerY != 0) {
                 this.player.setPosition(new Point2D.Double(this.player.getPosition().getX() + playerX,
                         this.player.getPosition().getY() + playerY));
-                System.out.println("Current player pos: " + this.player.getPosition());
                 this.player.update(deltaTime);
                 this.connection.sendObject(this.player);
-                System.out.println("Player updated and sent to server.");
             }
             this.camera.setCenterPoint(this.player.getPosition());
             this.camera.update(deltaTime);
@@ -148,11 +147,6 @@ public class Game implements Updateble {
 
     public static void updatePlayerList(Player[] players) {
         playerList = players;
-        System.out.println("New player list");
-        for (Player player : players) {
-            System.out.println("Player: " + player + ", " + player.getPosition() + "\t" + player.getOldPosition());
-        }
-        System.out.println("Updated players");
     }
 
     public void stop() {

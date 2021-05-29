@@ -110,7 +110,6 @@ public class ClientHandler implements Runnable, server.interfaces.Server {
                 Player player = items.get(i);
                 if (player.equals(o)) { //Replace the player with the new one if the position has changed.
                     Server.getPlayers().getItems().set(i, (Player) o);
-                    System.out.println("Update player: " + player.getPosition() + " to " + ((Player) o).getPosition());
                 }
             }
             Object[] src = Server.getPlayers().getItems().toArray();
