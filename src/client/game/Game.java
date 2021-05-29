@@ -16,7 +16,6 @@ import java.awt.geom.Point2D;
 public class Game implements Updateble {
     private final ResizableCanvas canvas;
     private final FXGraphics2D g2d;
-    private final BorderPane borderPane;
 
     //Input
     private final GameInputManager gameInputManager;
@@ -29,10 +28,9 @@ public class Game implements Updateble {
     private Connection connection;
 
     public Game(BorderPane borderPane) {
-        this.borderPane = borderPane;
-        this.canvas = new ResizableCanvas(g -> draw(), this.borderPane);
+        this.canvas = new ResizableCanvas(g -> draw(), borderPane);
         this.g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
-        this.borderPane.setCenter(this.canvas);
+        borderPane.setCenter(this.canvas);
 
         this.gameInputManager = new GameInputManager();
     }
