@@ -112,8 +112,6 @@ public class ClientHandler implements Runnable, server.interfaces.Server {
                     Server.getPlayers().getItems().set(i, (Player) o);
                 }
             }
-
-            System.out.println("\n");
             Object[] src = Server.getPlayers().getItems().toArray();
             Player[] players = Arrays.copyOf(src, src.length, Player[].class);
             this.client.broadcastObject(players);
