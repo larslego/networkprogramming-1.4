@@ -1,6 +1,6 @@
 package client.connection;
 
-import client.game.player.Nickname;
+import client.game.player.Player;
 import client.interfaces.Client;
 
 import java.io.IOException;
@@ -16,8 +16,7 @@ public class Connection implements Runnable, Client {
     private int port;
 
     //Client details
-    private String nickname;
-    //private Player player; //TODO: Implement player class
+    private Player player;
 
     //Socket IO
     private ObjectOutputStream objectOutputStream;
@@ -26,16 +25,17 @@ public class Connection implements Runnable, Client {
     private ConnectionRead connectionRead;
     private Thread readSocketThread;
 
-    public Connection(String hostname, int port, String nickname) {
+    public Connection(String hostname, int port, Player player) {
         this.hostname = hostname;
         this.port = port;
-        this.nickname = nickname;
+        this.player = player;
     }
 
     @Override
     public void sendObject(Object o) {
         if (this.socket != null && this.objectOutputStream != null) {
             try {
+                this.objectOutputStream.reset();
                 this.objectOutputStream.writeObject(o);
                 this.objectOutputStream.flush();
             } catch (IOException e) {
@@ -55,8 +55,8 @@ public class Connection implements Runnable, Client {
             this.readSocketThread = new Thread(this.connectionRead);
             this.readSocketThread.start();
 
-            //Send username to the server (can be used as a simple handshake).
-            this.objectOutputStream.writeObject(new Nickname(this.nickname));
+            //Send player object to the server.
+            this.objectOutputStream.writeObject(this.player);
             this.objectOutputStream.flush();
             return true;
         } catch (UnknownHostException e) {

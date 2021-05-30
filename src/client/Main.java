@@ -1,20 +1,27 @@
 package client;
 
-import client.connection.Connection;
 import client.game.Game;
+import client.game.player.Nickname;
+import client.game.player.Player;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+
+import java.awt.geom.Point2D;
 
 public class Main extends Application {
     private TextField hostnameText = new TextField();
     private TextField portText = new TextField();
     private TextField usernameText = new TextField();
     private Button joinButton = new Button("Join");
+
+    private Game game;
 
     public static void main(String[] args) {
         launch();
@@ -23,10 +30,14 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         BorderPane borderPane = new BorderPane();
-        Game game = new Game(borderPane);
-        game.run();
+        this.game = new Game(borderPane);
         borderPane.setCenter(game.getCanvas());
         borderPane.setTop(connectionBar());
+
+        //PRESET FOR TESTING
+        this.hostnameText.setText("localhost");
+        this.portText.setText("4444");
+        this.usernameText.setText("Lars");
 
         Scene scene = new Scene(borderPane);
         primaryStage.setTitle("Mooie game");
@@ -38,13 +49,32 @@ public class Main extends Application {
         this.hostnameText.setPromptText("Server adress/hostname");
         this.portText.setPromptText("Server port");
         this.usernameText.setPromptText("Username");
+        ColorPicker colorPicker = new ColorPicker(Color.BLUE);
         this.joinButton.setOnAction(e -> {
-            //TODO: Implement connecting to server.
+            String hostname = "";
+            int port = 0;
+            String nickname = "";
+            Color color = colorPicker.getValue();
 
+            if (!this.hostnameText.getText().isEmpty()) { hostname = this.hostnameText.getText(); }
+            if (!this.portText.getText().isEmpty()) { port = Integer.parseInt(this.portText.getText()); }
+            if (!this.usernameText.getText().isEmpty()) { nickname = this.usernameText.getText(); }
+
+            if (!hostname.isEmpty() && port != 0 && !nickname.isEmpty()) {
+                this.game.start(new Player(
+                        new Nickname(nickname),
+                        new Point2D.Double(0, 0),
+                        new java.awt.Color( //Convert JavaFX Color to AWT Color.
+                            (float) color.getRed(),
+                            (float) color.getGreen(),
+                            (float) color.getBlue(),
+                            (float) color.getOpacity())),
+                        hostname, port);
+            }
         });
 
         HBox hBox = new HBox();
-        hBox.getChildren().addAll(this.hostnameText, this.portText, this.usernameText, this.joinButton);
+        hBox.getChildren().addAll(this.hostnameText, this.portText, this.usernameText, colorPicker, this.joinButton);
         return hBox;
     }
 }

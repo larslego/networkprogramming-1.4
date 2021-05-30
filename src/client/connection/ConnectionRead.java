@@ -1,5 +1,9 @@
 package client.connection;
 
+import client.game.Game;
+import client.game.player.Player;
+import javafx.collections.ObservableList;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -24,13 +28,14 @@ public class ConnectionRead implements Runnable{
         System.out.println("Reading from server");
         while (this.running) {
             try {
-                System.out.println("Received input");
                 Object response = this.clientInput.readObject();
                 //Check what type of data we receive
                 if (response instanceof String) {
                     System.out.println("[Server] String: " + response);
                 } else if (response instanceof EOFException) {
                     System.out.println("[Server] Object: " + response);
+                } else if (response instanceof Player[]) {
+                    Game.updatePlayerList((Player[]) response);
                 }
             } catch (EOFException eofException) {
                 System.out.println("Server closed");

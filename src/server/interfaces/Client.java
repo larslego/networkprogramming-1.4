@@ -1,19 +1,18 @@
 package server.interfaces;
 
+import client.game.player.Player;
 import server.connection.ClientHandler;
-
-import java.util.List;
 
 public interface Client {
     /**
      * This method is called when a client connects.
      */
-    void onConnect(ClientHandler clientHandler);
+    void onConnect(ClientHandler clientHandler, Player player);
 
     /**
      * This method is called when a client disconnects.
      */
-    void onDisconnect(ClientHandler clientHandler);
+    void onDisconnect(ClientHandler clientHandler, Player player);
 
     /**
      * This method is used to send an object to the client.
