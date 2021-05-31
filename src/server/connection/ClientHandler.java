@@ -1,17 +1,18 @@
 package server.connection;
 
 import client.game.player.Player;
-import javafx.collections.ObservableList;
 import server.Server;
 import server.enums.LogType;
 import server.interfaces.Client;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Arrays;
+import java.util.Iterator;
 
 /**
  * Read from and send to client.
@@ -56,11 +57,12 @@ public class ClientHandler implements Runnable, server.interfaces.Server {
                     Object o = this.objectInputStream.readObject(); //Read object
                     onObjectReceived(o); //Fire onObjectReceived event
                 }
-            } catch (IOException | ClassNotFoundException e) { //Client disconnect on client side
-                if (e instanceof SocketException) {
+            } catch (IOException | ClassNotFoundException | NullPointerException e) { //Client disconnect on client side
+                if (e instanceof SocketException || e instanceof EOFException) {
                     stop();
                     break;
                 }
+                System.out.println(getClass().getName() + e.getCause() + " in run method.");
                 kickClient(this);
                 e.printStackTrace();
                 Server.appendLog(LogType.ERROR, e.getMessage());
@@ -91,7 +93,7 @@ public class ClientHandler implements Runnable, server.interfaces.Server {
     }
 
     @Override
-    public void onObjectReceived(Object o) {
+    public synchronized void onObjectReceived(Object o) {
         if (o instanceof String) { //Check what type of object we receive
             if (((String) o).equalsIgnoreCase("quit")) {
                 this.client.broadcastObjectToOthers(this, this.player.getNickname() + " left the server");
@@ -105,17 +107,19 @@ public class ClientHandler implements Runnable, server.interfaces.Server {
             this.client.onDisconnect(this, this.player);
             this.running = false;
         } else if (o instanceof Player) { //Player object
-            ObservableList<Player> items = Server.getPlayers().getItems();
-            for (int i = 0; i < items.size(); i++) {
-                Player player = items.get(i);
-                if (player.equals(o)) { //Replace the player with the new one if the position has changed.
-                    Server.getPlayers().getItems().set(i, (Player) o);
-                }
+            Iterator<Player> i = Server.getPlayers().iterator();
+            while (i.hasNext()) {
+               Player player = i.next();
+               if (player.getNickname().getNickname().equalsIgnoreCase(((Player) o).getNickname().getNickname())) {
+                   synchronized (this) {
+                       Server.removePlayer(player);
+                       Server.addPlayer((Player) o);
+                        Object[] src = Server.getPlayers().toArray();
+                        Player[] players = Arrays.copyOf(src, src.length, Player[].class);
+                        this.client.broadcastObject(players);
+                   }
+               }
             }
-            Object[] src = Server.getPlayers().getItems().toArray();
-            Player[] players = Arrays.copyOf(src, src.length, Player[].class);
-            this.client.broadcastObject(players);
-            Server.getPlayers().refresh();
         } else {
             Server.appendLog(LogType.ERROR, "Received invalid object!");
         }

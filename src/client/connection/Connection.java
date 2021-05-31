@@ -35,9 +35,11 @@ public class Connection implements Runnable, Client {
     public void sendObject(Object o) {
         if (this.socket != null && this.objectOutputStream != null) {
             try {
-                this.objectOutputStream.reset();
-                this.objectOutputStream.writeObject(o);
-                this.objectOutputStream.flush();
+                if (!this.socket.isClosed()) {
+                    this.objectOutputStream.reset();
+                    this.objectOutputStream.writeObject(o);
+                    this.objectOutputStream.flush();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }

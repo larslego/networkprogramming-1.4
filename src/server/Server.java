@@ -16,11 +16,13 @@ import server.enums.LogType;
 
 import java.time.LocalTime;
 import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Server extends Application {
     private static TextArea consoleArea = new TextArea();
     private TextField consoleSendText = new TextField();
     private static ListView<Player> playerListView = new ListView<>();
+    private static CopyOnWriteArrayList<Player> players = new CopyOnWriteArrayList<>(playerListView.getItems());
 
     private Connection connection;
     private Thread serverThread;
@@ -89,12 +91,12 @@ public class Server extends Application {
                 msg + "\n");
     }
 
-    public static void addPlayer(Player player) {
-        Platform.runLater(() -> playerListView.getItems().add(player));
+    public synchronized static void addPlayer(Player player) {
+        Platform.runLater(() -> players.add(player));
     }
 
-    public static void removePlayer(Player player) {
-        Platform.runLater(() -> playerListView.getItems().remove(player));
+    public synchronized static void removePlayer(Player player) {
+        Platform.runLater(() -> players.remove(player));
     }
 
     @Override
@@ -110,7 +112,7 @@ public class Server extends Application {
         System.out.println("Server stopped");
     }
 
-    public static ListView<Player> getPlayers() {
-        return playerListView;
+    public synchronized static CopyOnWriteArrayList<Player> getPlayers() {
+        return players;
     }
 }

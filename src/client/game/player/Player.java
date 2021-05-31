@@ -11,6 +11,8 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class Player implements Serializable, Updateble, Drawable {
+    private static final long serialVersionUID = -192837465;
+
     private Nickname nickname;
     private Point2D position;
     private Color color;

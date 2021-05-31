@@ -2,7 +2,6 @@ package client.connection;
 
 import client.game.Game;
 import client.game.player.Player;
-import javafx.collections.ObservableList;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -42,9 +41,8 @@ public class ConnectionRead implements Runnable{
                 this.running = false;
                 this.connection.disconnect();
                 break;
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException | ClassCastException e) {
                 e.printStackTrace();
-                System.out.println("You can ignore this exception if you intended to quit.");
                 this.running = false;
                 this.connection.disconnect();
                 break;
