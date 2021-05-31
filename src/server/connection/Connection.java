@@ -89,7 +89,7 @@ public class Connection implements Runnable, Client {
         return this.clients;
     }
 
-    public void stop() {
+    public synchronized void stop() {
         this.running = false;
         Iterator<ClientHandler> iterator = this.clients.iterator();
         while (iterator.hasNext()) {
@@ -107,10 +107,12 @@ public class Connection implements Runnable, Client {
     @Override
     public void sendObject(ClientHandler clientHandler, Object o) {
         try {
-            clientHandler.getObjectOutputStream().reset();
-            clientHandler.getObjectOutputStream().writeObject(o);
-            clientHandler.getObjectOutputStream().flush();
+            if (!this.serverSocket.isClosed()) {
+                clientHandler.getObjectOutputStream().writeObject(o);
+                clientHandler.getObjectOutputStream().flush();
+            }
         } catch (IOException e) {
+            stop();
             e.printStackTrace();
             Server.appendLog(LogType.ERROR, e.getMessage());
         }
@@ -120,7 +122,7 @@ public class Connection implements Runnable, Client {
     public void onConnect(ClientHandler clientHandler, Player player) {
         this.clients.add(clientHandler);
         Server.addPlayer(player);
-        Object[] src = Server.getPlayers().getItems().toArray();
+        Object[] src = Server.getPlayers().toArray();
         Player[] players = Arrays.copyOf(src, src.length, Player[].class);
         broadcastObject(players);
         Server.appendLog(LogType.INFO, clientHandler.getNickname() + " joined the server."); //Send join message to server.
@@ -128,7 +130,7 @@ public class Connection implements Runnable, Client {
     }
 
     @Override
-    public void broadcastObject(Object o) {
+    public synchronized void broadcastObject(Object o) {
         if (o instanceof String) {
             Server.appendLog(LogType.INFO, o.toString());
         }

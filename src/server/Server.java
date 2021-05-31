@@ -3,6 +3,7 @@ package server;
 import client.game.player.Player;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
@@ -15,12 +16,16 @@ import server.connection.Connection;
 import server.enums.LogType;
 
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Server extends Application {
     private static TextArea consoleArea = new TextArea();
     private TextField consoleSendText = new TextField();
     private static ListView<Player> playerListView = new ListView<>();
+    private static CopyOnWriteArrayList<Player> players = new CopyOnWriteArrayList<>(playerListView.getItems());
 
     private Connection connection;
     private Thread serverThread;
@@ -89,12 +94,16 @@ public class Server extends Application {
                 msg + "\n");
     }
 
-    public static void addPlayer(Player player) {
-        Platform.runLater(() -> playerListView.getItems().add(player));
+    public synchronized static void addPlayer(Player player) {
+        Platform.runLater(() -> {
+            players.add(player);
+        });
     }
 
-    public static void removePlayer(Player player) {
-        Platform.runLater(() -> playerListView.getItems().remove(player));
+    public synchronized static void removePlayer(Player player) {
+        Platform.runLater(() -> {
+            players.remove(player);
+        });
     }
 
     @Override
@@ -110,7 +119,7 @@ public class Server extends Application {
         System.out.println("Server stopped");
     }
 
-    public static ListView<Player> getPlayers() {
-        return playerListView;
+    public synchronized static CopyOnWriteArrayList<Player> getPlayers() {
+        return players;
     }
 }
