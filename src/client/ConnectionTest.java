@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class ConnectionTest {
     public static void main(String[] args) {
         Connection connection = new Connection("localhost", 4444, new Player(new Nickname("Lars"), new Point2D.Double(0, 0), Color.BLUE));
-        Thread thread = new Thread(connection);
+        //Thread thread = new Thread(connection);
         if (!connection.connect()) {
             return;
         }
@@ -31,12 +31,12 @@ public class ConnectionTest {
 
         System.out.println("Disconnecting...");
         connection.disconnect();
-        try {
-            System.out.println("Joining threads");
-            thread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            System.out.println("Joining threads");
+//            thread.join();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         System.out.println("Disconnected from server");
     }
 }

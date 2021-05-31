@@ -7,11 +7,12 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class ConnectionRead implements Runnable{
     private ObjectInputStream clientInput;
     private Connection connection;
-    private boolean running = true;
+    private boolean running = false;
 
     public ConnectionRead(Socket socket, Connection connection) {
         try {
@@ -24,8 +25,9 @@ public class ConnectionRead implements Runnable{
 
     @Override
     public void run() {
+        this.running = true;
         System.out.println("Reading from server");
-        while (this.running) {
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 Object response = this.clientInput.readObject();
                 //Check what type of data we receive
@@ -40,12 +42,16 @@ public class ConnectionRead implements Runnable{
                 System.out.println("Server closed");
                 this.running = false;
                 this.connection.disconnect();
-                break;
+            } catch (SocketException e) {
+                if (e.getMessage().equalsIgnoreCase("Socket closed")) {
+                    break;
+                } else {
+                    e.printStackTrace();
+                }
             } catch (IOException | ClassNotFoundException | ClassCastException e) {
                 e.printStackTrace();
                 this.running = false;
                 this.connection.disconnect();
-                break;
             }
         }
     }

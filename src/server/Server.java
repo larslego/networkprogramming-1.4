@@ -21,7 +21,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Server extends Application {
     private static TextArea consoleArea = new TextArea();
     private TextField consoleSendText = new TextField();
+    //This list is used for the UI.
     private static ListView<Player> playerListView = new ListView<>();
+    //This list is used to sync Player objects between clients.
     private static CopyOnWriteArrayList<Player> players = new CopyOnWriteArrayList<>(playerListView.getItems());
 
     private Connection connection;
@@ -92,11 +94,17 @@ public class Server extends Application {
     }
 
     public synchronized static void addPlayer(Player player) {
-        Platform.runLater(() -> players.add(player));
+        Platform.runLater(() -> {
+            players.add(player);
+            playerListView.getItems().add(player);
+        });
     }
 
     public synchronized static void removePlayer(Player player) {
-        Platform.runLater(() -> players.remove(player));
+        Platform.runLater(() -> {
+            players.remove(player);
+            playerListView.getItems().remove(player);
+        });
     }
 
     @Override

@@ -4,6 +4,8 @@ import client.connection.Connection;
 import client.game.player.Player;
 import client.interfaces.Updateble;
 import javafx.animation.AnimationTimer;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import org.jfree.fx.FXGraphics2D;
@@ -43,16 +45,19 @@ public class Game implements Updateble {
     }
 
     public void run() {
+        if (!this.connection.connect()) {
+            System.out.println("Could not open a connection!");
+            Alert alert = new Alert(Alert.AlertType.ERROR,
+                    "Could not connect to the server.",
+                    ButtonType.OK);
+            alert.show();
+            return;
+        }
+
         this.canvas.setFocusTraversable(true); //Enable keylisteners on canvas.
         this.canvas.setOnMouseMoved(e -> this.canvas.requestFocus());
         this.canvas.setOnKeyPressed(e -> this.gameInputManager.setKeyPressed(e.getCode()));
         this.canvas.setOnKeyReleased(e -> this.gameInputManager.setKeyReleased(e.getCode()));
-
-        if (!this.connection.connect()) {
-            System.out.println("Could not open a connection!");
-            //TODO: Add Alert to warn user about not being able to connect.
-            return;
-        }
 
         new AnimationTimer() {
             long last = -1;
@@ -135,6 +140,8 @@ public class Game implements Updateble {
     }
 
     public void stop() {
-        this.connection.disconnect();
+        if (this.connection != null) {
+            this.connection.disconnect();
+        }
     }
 }

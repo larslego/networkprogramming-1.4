@@ -50,6 +50,8 @@ public class Main extends Application {
         this.portText.setPromptText("Server port");
         this.usernameText.setPromptText("Username");
         ColorPicker colorPicker = new ColorPicker(Color.BLUE);
+
+        //Check for valid input when the join button is pressed.
         this.joinButton.setOnAction(e -> {
             String hostname = "";
             int port = 0;
@@ -60,6 +62,7 @@ public class Main extends Application {
             if (!this.portText.getText().isEmpty()) { port = Integer.parseInt(this.portText.getText()); }
             if (!this.usernameText.getText().isEmpty()) { nickname = this.usernameText.getText(); }
 
+            //If host input is valid we can start the game.
             if (!hostname.isEmpty() && port != 0 && !nickname.isEmpty()) {
                 this.game.start(new Player(
                         new Nickname(nickname),
@@ -76,5 +79,11 @@ public class Main extends Application {
         HBox hBox = new HBox();
         hBox.getChildren().addAll(this.hostnameText, this.portText, this.usernameText, colorPicker, this.joinButton);
         return hBox;
+    }
+
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+        this.game.stop();
     }
 }

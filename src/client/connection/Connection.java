@@ -9,7 +9,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-public class Connection implements Runnable, Client {
+public class Connection implements Client {
     //Server details
     private Socket socket;
     private String hostname;
@@ -80,30 +80,18 @@ public class Connection implements Runnable, Client {
     @Override
     public void disconnect() {
         if (this.socket != null) {
-            try {
-                System.out.println("Closing socket");
-                if (this.connectionRead != null) {
-                    this.connectionRead.stop();
-                }
-                this.socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (this.connectionRead != null) {
+                this.connectionRead.stop();
             }
         }
 
         if (this.readSocketThread != null) {
             try {
-                this.readSocketThread.join();
-            } catch (InterruptedException e) {
+                this.readSocketThread.interrupt();
+                this.socket.close();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    /**
-     * Connect to the server and start reading on a separate thread.
-     */
-    @Override
-    public void run() {
     }
 }
