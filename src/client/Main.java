@@ -86,4 +86,9 @@ public class Main extends Application {
         super.stop();
         this.game.stop();
     }
+
+    public static void chatMessageReceived(String msg) {
+        //TODO: Implement chat window/box
+        System.out.println(msg);
+    }
 }

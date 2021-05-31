@@ -1,7 +1,9 @@
 package client.connection;
 
+import client.Main;
 import client.game.Game;
 import client.game.player.Player;
+import client.interfaces.ChatMessage;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -9,7 +11,7 @@ import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
-public class ConnectionRead implements Runnable{
+public class ConnectionRead implements Runnable, ChatMessage {
     private ObjectInputStream clientInput;
     private Connection connection;
     private boolean running = false;
@@ -33,6 +35,7 @@ public class ConnectionRead implements Runnable{
                 //Check what type of data we receive
                 if (response instanceof String) {
                     System.out.println("[Server] String: " + response);
+                    onReceive((String) response);
                 } else if (response instanceof EOFException) {
                     System.out.println("[Server] Object: " + response);
                 } else if (response instanceof Player[]) {
@@ -58,5 +61,10 @@ public class ConnectionRead implements Runnable{
 
     public void stop() {
         this.running = false;
+    }
+
+    @Override
+    public void onReceive(String msg) {
+        Main.chatMessageReceived(msg);
     }
 }
