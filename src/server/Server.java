@@ -3,7 +3,6 @@ package server;
 import client.game.player.Player;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
@@ -16,9 +15,7 @@ import server.connection.Connection;
 import server.enums.LogType;
 
 import java.time.LocalTime;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Server extends Application {
@@ -95,15 +92,11 @@ public class Server extends Application {
     }
 
     public synchronized static void addPlayer(Player player) {
-        Platform.runLater(() -> {
-            players.add(player);
-        });
+        Platform.runLater(() -> players.add(player));
     }
 
     public synchronized static void removePlayer(Player player) {
-        Platform.runLater(() -> {
-            players.remove(player);
-        });
+        Platform.runLater(() -> players.remove(player));
     }
 
     @Override
