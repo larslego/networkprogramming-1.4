@@ -15,15 +15,17 @@ import java.net.SocketException;
 public class ConnectionRead implements Runnable, ChatMessage {
     private ObjectInputStream clientInput;
     private Connection connection;
+    private Game game;
     private boolean running = false;
 
-    public ConnectionRead(Socket socket, Connection connection) {
+    public ConnectionRead(Socket socket, Connection connection, Game game) {
         try {
             this.clientInput = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
         this.connection = connection;
+        this.game = game;
     }
 
     @Override
@@ -40,7 +42,7 @@ public class ConnectionRead implements Runnable, ChatMessage {
                 } else if (response instanceof EOFException) {
                     System.out.println("[Server] Object: " + response);
                 } else if (response instanceof Player[]) {
-                    Game.updatePlayerList((Player[]) response);
+                    this.game.updatePlayerList((Player[]) response);
                 }
             } catch (EOFException eofException) {
                 System.out.println("Server closed");

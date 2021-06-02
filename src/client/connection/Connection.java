@@ -1,5 +1,6 @@
 package client.connection;
 
+import client.game.Game;
 import client.game.player.Player;
 import client.interfaces.Client;
 
@@ -25,10 +26,13 @@ public class Connection implements Client {
     private ConnectionRead connectionRead;
     private Thread readSocketThread;
 
-    public Connection(String hostname, int port, Player player) {
+    private Game game;
+
+    public Connection(String hostname, int port, Player player, Game game) {
         this.hostname = hostname;
         this.port = port;
         this.player = player;
+        this.game = game;
     }
 
     @Override
@@ -36,7 +40,7 @@ public class Connection implements Client {
         if (this.socket != null && this.objectOutputStream != null) {
             try {
                 if (!this.socket.isClosed()) {
-                    this.objectOutputStream.reset();
+//                    this.objectOutputStream.reset();
                     this.objectOutputStream.writeObject(o);
                     this.objectOutputStream.flush();
                 }
@@ -53,12 +57,13 @@ public class Connection implements Client {
             this.objectOutputStream = new ObjectOutputStream(this.socket.getOutputStream());
 
             //Create thread to read connection input.
-            this.connectionRead = new ConnectionRead(this.socket, this);
+            this.connectionRead = new ConnectionRead(this.socket, this, this.game);
             this.readSocketThread = new Thread(this.connectionRead);
             this.readSocketThread.start();
 
             //Send player object to the server.
             this.objectOutputStream.writeObject(this.player);
+            this.objectOutputStream.reset();
             this.objectOutputStream.flush();
             return true;
         } catch (UnknownHostException e) {

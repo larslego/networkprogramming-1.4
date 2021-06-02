@@ -30,7 +30,8 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         BorderPane borderPane = new BorderPane();
-        this.game = new Game(borderPane);
+        Scene scene = new Scene(borderPane);
+        this.game = new Game(borderPane, scene);
         borderPane.setCenter(game.getCanvas());
         borderPane.setTop(connectionBar());
 
@@ -39,7 +40,8 @@ public class Main extends Application {
         this.portText.setText("4444");
         this.usernameText.setText("Lars");
 
-        Scene scene = new Scene(borderPane);
+        primaryStage.setMinWidth(600);
+        primaryStage.setMinHeight(400);
         primaryStage.setTitle("Mooie game");
         primaryStage.setScene(scene);
         primaryStage.show();

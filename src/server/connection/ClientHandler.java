@@ -5,6 +5,7 @@ import server.Server;
 import server.enums.LogType;
 import server.interfaces.Client;
 
+import java.awt.geom.Point2D;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -111,16 +112,28 @@ public class ClientHandler implements Runnable, server.interfaces.Server {
         } else if (o instanceof Player) { //Player object
             Iterator<Player> i = Server.getPlayers().iterator();
             while (i.hasNext()) {
-               Player player = i.next();
-               if (player.getNickname().getNickname().equalsIgnoreCase(((Player) o).getNickname().getNickname())) {
-                   synchronized (this) {
-                       Server.removePlayer(player);
-                       Server.addPlayer((Player) o);
+                Player player = i.next();
+                if (player.getNickname().getNickname().equalsIgnoreCase(((Player) o).getNickname().getNickname())) {
+                    synchronized (this) {
+                        Server.removePlayer(player);
+                        Server.addPlayer((Player) o);
                         Object[] src = Server.getPlayers().toArray();
                         Player[] players = Arrays.copyOf(src, src.length, Player[].class);
                         this.client.broadcastObject(players);
-                   }
-               }
+                    }
+                }
+            }
+        } else if (o instanceof Point2D) { //Player position
+                Server.getPlayers().get(Server.getPlayers().indexOf(this.player)).setPosition((Point2D) o);
+                synchronized (this) {
+                    Object[] src = Server.getPlayers().toArray();
+                    Player[] players = Arrays.copyOf(src, src.length, Player[].class);
+                    try {
+                        this.objectOutputStream.reset();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    this.client.broadcastObject(players);
             }
         } else {
             Server.appendLog(LogType.ERROR, "Received invalid object!");

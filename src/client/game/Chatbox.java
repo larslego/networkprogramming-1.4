@@ -2,9 +2,11 @@ package client.game;
 
 import client.connection.Connection;
 import client.game.player.Nickname;
+import javafx.geometry.Pos;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.time.LocalTime;
@@ -35,7 +37,14 @@ public class Chatbox {
             }
         });
 
-        //setup hbox
+        textArea.setWrapText(true);
+        this.chatInputField.setPromptText("Type a message here");
+        this.chatInputField.setId("chatInputField");
+
+        //setup VBox
+        VBox.setVgrow(textArea, Priority.ALWAYS);
+        this.chatVBox.setMaxWidth(250.0);
+        this.chatVBox.setAlignment(Pos.BOTTOM_CENTER);
         this.chatVBox.getChildren().addAll(textArea, this.chatInputField);
     }
 

@@ -4,12 +4,14 @@ import client.connection.Connection;
 import client.game.player.Player;
 import client.interfaces.Updateble;
 import javafx.animation.AnimationTimer;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import org.jfree.fx.FXGraphics2D;
 import org.jfree.fx.ResizableCanvas;
+import javafx.scene.control.TextField;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -25,17 +27,18 @@ public class Game implements Updateble {
 
     //Player
     private Player player;
-    public static Player[] playerList; //This list contains all players on the server.
+    public Player[] playerList; //This list contains all players on the server.
 
     //Chatbox
     private Chatbox chatbox;
-
+    private Scene scene;
 
     //Connection
     private Connection connection;
 
-    public Game(BorderPane borderPane) {
+    public Game(BorderPane borderPane, Scene scene) {
         this.borderPane = borderPane;
+        this.scene = scene;
         this.canvas = new ResizableCanvas(g -> draw(), this.borderPane);
         this.g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
         this.borderPane.setCenter(this.canvas);
@@ -46,7 +49,7 @@ public class Game implements Updateble {
     public void start(Player player, String hostname, int port) {
         this.player = player;
         playerList = new Player[] { this.player };
-        this.connection = new Connection(hostname, port, player);
+        this.connection = new Connection(hostname, port, player, this);
 
         //chat
         this.chatbox = new Chatbox(this.connection, this.player.getNickname());
@@ -112,6 +115,14 @@ public class Game implements Updateble {
 
     @Override
     public void update(double deltaTime) {
+        if (this.gameInputManager.isPressed(KeyCode.ENTER)) {
+            if (this.borderPane != null) {
+                TextField chatField = (TextField) this.scene.lookup("#chatInputField");
+                chatField.requestFocus();
+                this.gameInputManager.getKeysPressed().clear();
+            }
+        }
+
         if (this.player != null) {
             int playerX = 0;
             int playerY = 0;
@@ -141,13 +152,25 @@ public class Game implements Updateble {
                 this.player.setPosition(new Point2D.Double(this.player.getPosition().getX() + playerX,
                         this.player.getPosition().getY() + playerY));
                 this.player.update(deltaTime);
-                this.connection.sendObject(this.player);
+                //this.connection.sendObject(this.player);
+                this.connection.sendObject(this.player.getPosition());
             }
         }
     }
 
-    public static void updatePlayerList(Player[] players) {
+    public void updatePlayerList(Player[] players) {
+        System.out.println("Updated!");
+
+        for (int i = 0; i < players.length - 1; i++) {
+            if (players[i].equals(this.player)) {
+                players[i] = this.player;
+            }
+        }
         playerList = players;
+    }
+
+    public Player getPlayer() {
+        return this.player;
     }
 
     public void stop() {
