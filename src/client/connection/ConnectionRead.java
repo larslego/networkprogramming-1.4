@@ -1,6 +1,7 @@
 package client.connection;
 
 import client.Main;
+import client.game.Chatbox;
 import client.game.Game;
 import client.game.player.Player;
 import client.interfaces.ChatMessage;
@@ -66,5 +67,6 @@ public class ConnectionRead implements Runnable, ChatMessage {
     @Override
     public void onReceive(String msg) {
         Main.chatMessageReceived(msg);
+        Chatbox.apendText(msg);
     }
 }

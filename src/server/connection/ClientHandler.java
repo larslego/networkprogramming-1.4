@@ -101,8 +101,10 @@ public class ClientHandler implements Runnable, server.interfaces.Server {
                 this.running = false;
             } else if (((String) o).startsWith("/")) { //User sent a command
                 Server.appendLog(LogType.INFO, o.toString());
+            } else {
+                this.client.broadcastObject(o);
             }
-            Server.appendLog(LogType.INFO, this.player.getNickname() + ": " + o);
+            Server.appendLog(LogType.INFO, (String)o);
         } else if (o == null || o.equals(-1)) { //Client disconnects
             this.client.onDisconnect(this, this.player);
             this.running = false;

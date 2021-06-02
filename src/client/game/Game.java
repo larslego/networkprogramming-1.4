@@ -16,6 +16,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
 public class Game implements Updateble {
+    private BorderPane borderPane;
     private final ResizableCanvas canvas;
     private final FXGraphics2D g2d;
 
@@ -26,13 +27,18 @@ public class Game implements Updateble {
     private Player player;
     public static Player[] playerList; //This list contains all players on the server.
 
+    //Chatbox
+    private Chatbox chatbox;
+
+
     //Connection
     private Connection connection;
 
     public Game(BorderPane borderPane) {
-        this.canvas = new ResizableCanvas(g -> draw(), borderPane);
+        this.borderPane = borderPane;
+        this.canvas = new ResizableCanvas(g -> draw(), this.borderPane);
         this.g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
-        borderPane.setCenter(this.canvas);
+        this.borderPane.setCenter(this.canvas);
 
         this.gameInputManager = new GameInputManager();
     }
@@ -41,6 +47,11 @@ public class Game implements Updateble {
         this.player = player;
         playerList = new Player[] { this.player };
         this.connection = new Connection(hostname, port, player);
+
+        //chat
+        this.chatbox = new Chatbox(this.connection, this.player.getNickname());
+        this.borderPane.setRight(this.chatbox.getChatVBox());
+
         run();
     }
 
@@ -75,7 +86,6 @@ public class Game implements Updateble {
     public void draw() {
         this.g2d.clearRect(0, 0, (int) this.canvas.getWidth(), (int) this.canvas.getHeight());
         this.g2d.setBackground(Color.white);
-
         this.g2d.translate(this.canvas.getWidth() / 2, this.canvas.getHeight() / 2);
         this.g2d.setColor(Color.GREEN);
         this.g2d.fillRect(0, 0, 40, 40); //Top left of square is 0, 0.
@@ -125,6 +135,7 @@ public class Game implements Updateble {
             if (this.gameInputManager.getKeysPressed().contains(KeyCode.D)) {
                 playerX += speed;
             }
+
 
             if (playerX != 0 || playerY != 0) {
                 this.player.setPosition(new Point2D.Double(this.player.getPosition().getX() + playerX,
