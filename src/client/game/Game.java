@@ -178,11 +178,8 @@ public class Game implements Updateble {
                 this.player.update(deltaTime);
             }
 
-            //TODO: Improve when to send player position.
-//            if (!this.player.getPosition().equals(oldPos)) {
-                this.connection.sendObject(this.player.getPosition());
-                this.connection.sendObject(this.player.getDirection());
-//            }
+            this.connection.sendObject(this.player.getPosition());
+            this.connection.sendObject(this.player.getDirection());
         }
     }
 
@@ -211,31 +208,6 @@ public class Game implements Updateble {
         }
 
         playerList = old.toArray(new Player[old.size()]);
-
-//        for (int i = 0; i <= players.length - 1; i++) {
-////            if (players[i].equals(this.player)) {
-////                System.out.println("First if");
-////                players[i] = this.player;
-////            }
-////
-////            if (players[i].equals(playerList[i])) {
-////                System.out.println("Second if");
-////                playerList[i].setPosition(players[i].getPosition());
-////            }
-//
-//            for (int j = 0; j <= playerList.length - 1; j++) {
-//                if (players[i].equals(playerList[j])) { //Add player if necessary
-//                    System.out.println("Player: " + playerList[j].getNickname() + ", " + playerList[j].getPosition());
-//                    playerList[j].setPosition(players[i].getPosition());
-//                } else {
-//                    list.add(players[i]);
-//                }
-//            }
-//
-//            System.out.println("PlayerList: " + playerList.length);
-//            System.out.println("Players: " + players.length);
-//        }
-//        playerList = (Player[]) list.toArray();
     }
 
     public Player getPlayer() {

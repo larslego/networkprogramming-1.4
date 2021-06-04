@@ -40,7 +40,6 @@ public class Connection implements Client {
         if (this.socket != null && this.objectOutputStream != null) {
             try {
                 if (!this.socket.isClosed()) {
-//                    this.objectOutputStream.reset();
                     this.objectOutputStream.writeObject(o);
                     this.objectOutputStream.flush();
                 }
