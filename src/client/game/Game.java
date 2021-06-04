@@ -109,10 +109,17 @@ public class Game implements Updateble {
                         newTransform.translate(-player.getPosition().getX(), -player.getPosition().getY());
                     }
                     if (this.playerSprite != null) {
-                        g2d.drawImage(PlayerSprite.getBodyTexture(player.getDirection().getValue(), 0),
-                                (int) player.getPosition().getX() - (this.playerSprite.getBodyWidth() / 2),
-                                (int) player.getPosition().getY() - (this.playerSprite.getBodyHeight()),
-                                null);
+                        if (player.getDirection() == Direction.NORTH || player.getDirection() == Direction.SOUTH) {
+                            g2d.drawImage(PlayerSprite.getBodyTexture(player.getDirection().getValue(), ((int) Math.abs(player.getPosition().getY() / 20) % 4)),
+                                    (int) player.getPosition().getX() - (this.playerSprite.getBodyWidth() / 2),
+                                    (int) player.getPosition().getY() - (this.playerSprite.getBodyHeight()),
+                                    null);
+                        } else {
+                            g2d.drawImage(PlayerSprite.getBodyTexture(player.getDirection().getValue(), ((int) Math.abs(player.getPosition().getX() / 20) % 4)),
+                                    (int) player.getPosition().getX() - (this.playerSprite.getBodyWidth() / 2),
+                                    (int) player.getPosition().getY() - (this.playerSprite.getBodyHeight()),
+                                    null);
+                        }
                     }
                     player.draw(this.g2d);
                 }
@@ -139,10 +146,12 @@ public class Game implements Updateble {
             int playerX = 0;
             int playerY = 0;
             int speed = 1;
+            double frameSpeed = 1;
 
             //Set different speed when player is sprinting.
             if (this.gameInputManager.getKeysPressed().contains(KeyCode.SHIFT)) {
                 speed = 2;
+                frameSpeed = 1.5;
             }
 
             //Check direction controls.
@@ -163,7 +172,6 @@ public class Game implements Updateble {
                 playerX += speed;
             }
 
-            Point2D oldPos = this.player.getPosition();
             if (playerX != 0 || playerY != 0) {
                 this.player.setPosition(new Point2D.Double(this.player.getPosition().getX() + playerX,
                         this.player.getPosition().getY() + playerY));
@@ -173,6 +181,7 @@ public class Game implements Updateble {
             //TODO: Improve when to send player position.
 //            if (!this.player.getPosition().equals(oldPos)) {
                 this.connection.sendObject(this.player.getPosition());
+                this.connection.sendObject(this.player.getDirection());
 //            }
         }
     }
@@ -196,6 +205,7 @@ public class Game implements Updateble {
             for (Player oPlayer : old) {
                 if (lPlayer.equals(oPlayer)) {
                     oPlayer.setPosition(lPlayer.getPosition());
+                    oPlayer.setDirection(lPlayer.getDirection());
                 }
             }
         }

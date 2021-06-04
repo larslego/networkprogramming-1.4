@@ -27,7 +27,9 @@ public class Player implements Serializable, Updateble, Drawable {
     @Override
     public void draw(FXGraphics2D g2d) {
         g2d.setColor(Color.BLACK);
-        g2d.drawString(this.nickname.toString(), (int) this.position.getX(), (int) this.position.getY() - 10);
+        g2d.drawString(this.nickname.toString(),
+                (int) this.position.getX() - (25 - (this.nickname.getNickname().length() / 2)),
+                (int) this.position.getY() - 85);
         g2d.setColor(this.color);
 
         g2d.draw(new Ellipse2D.Double(this.position.getX(), this.position.getY(), 10, 10));
