@@ -124,16 +124,16 @@ public class ClientHandler implements Runnable, server.interfaces.Server {
                 }
             }
         } else if (o instanceof Point2D) { //Player position
-                Server.getPlayers().get(Server.getPlayers().indexOf(this.player)).setPosition((Point2D) o);
-                synchronized (this) {
-                    Object[] src = Server.getPlayers().toArray();
-                    Player[] players = Arrays.copyOf(src, src.length, Player[].class);
-                    try {
-                        this.objectOutputStream.reset();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    this.client.broadcastObject(players);
+            Server.getPlayers().get(Server.getPlayers().indexOf(this.player)).setPosition((Point2D) o);
+            synchronized (this) {
+                Object[] src = Server.getPlayers().toArray();
+                Player[] players = Arrays.copyOf(src, src.length, Player[].class);
+                try {
+                    this.objectOutputStream.reset();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                this.client.broadcastObject(players);
             }
         } else {
             Server.appendLog(LogType.ERROR, "Received invalid object!");

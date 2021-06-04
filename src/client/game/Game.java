@@ -1,7 +1,9 @@
 package client.game;
 
 import client.connection.Connection;
+import client.game.player.Direction;
 import client.game.player.Player;
+import client.game.player.PlayerSprite;
 import client.interfaces.Updateble;
 import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
@@ -16,6 +18,8 @@ import javafx.scene.control.TextField;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Game implements Updateble {
     private BorderPane borderPane;
@@ -28,6 +32,7 @@ public class Game implements Updateble {
     //Player
     private Player player;
     public Player[] playerList; //This list contains all players on the server.
+    private PlayerSprite playerSprite;
 
     //Chatbox
     private Chatbox chatbox;
@@ -44,6 +49,7 @@ public class Game implements Updateble {
         this.borderPane.setCenter(this.canvas);
 
         this.gameInputManager = new GameInputManager();
+        this.playerSprite = new PlayerSprite();
     }
 
     public void start(Player player, String hostname, int port) {
@@ -102,6 +108,12 @@ public class Game implements Updateble {
                     if (player.equals(this.player)) {
                         newTransform.translate(-player.getPosition().getX(), -player.getPosition().getY());
                     }
+                    if (this.playerSprite != null) {
+                        g2d.drawImage(PlayerSprite.getBodyTexture(player.getDirection().getValue(), 0),
+                                (int) player.getPosition().getX() - (this.playerSprite.getBodyWidth() / 2),
+                                (int) player.getPosition().getY() - (this.playerSprite.getBodyHeight()),
+                                null);
+                    }
                     player.draw(this.g2d);
                 }
             }
@@ -135,38 +147,85 @@ public class Game implements Updateble {
 
             //Check direction controls.
             if (this.gameInputManager.getKeysPressed().contains(KeyCode.W)) {
+                this.player.setDirection(Direction.NORTH);
                 playerY -= speed;
             }
             if (this.gameInputManager.getKeysPressed().contains(KeyCode.S)) {
+                this.player.setDirection(Direction.SOUTH);
                 playerY += speed;
             }
             if (this.gameInputManager.getKeysPressed().contains(KeyCode.A)) {
+                this.player.setDirection(Direction.WEST);
                 playerX -= speed;
             }
             if (this.gameInputManager.getKeysPressed().contains(KeyCode.D)) {
+                this.player.setDirection(Direction.EAST);
                 playerX += speed;
             }
 
-
+            Point2D oldPos = this.player.getPosition();
             if (playerX != 0 || playerY != 0) {
                 this.player.setPosition(new Point2D.Double(this.player.getPosition().getX() + playerX,
                         this.player.getPosition().getY() + playerY));
                 this.player.update(deltaTime);
-                //this.connection.sendObject(this.player);
-                this.connection.sendObject(this.player.getPosition());
             }
+
+            //TODO: Improve when to send player position.
+//            if (!this.player.getPosition().equals(oldPos)) {
+                this.connection.sendObject(this.player.getPosition());
+//            }
         }
     }
 
     public void updatePlayerList(Player[] players) {
-        System.out.println("Updated!");
-
-        for (int i = 0; i < players.length - 1; i++) {
-            if (players[i].equals(this.player)) {
-                players[i] = this.player;
+        ArrayList<Player> old = new ArrayList<>(Arrays.asList(playerList));
+        ArrayList<Player> list = new ArrayList<>(Arrays.asList(players));
+        for (Player p : list) {
+            if (old.size() < list.size()) {
+                if (!old.contains(p)) {
+                    System.out.println("Adding player");
+                    old.add(p);
+                }
+            } else if (old.size() > list.size()){
+                System.out.println("removing player");
+                old.remove(p);
             }
         }
-        playerList = players;
+
+        for (Player lPlayer : list) {
+            for (Player oPlayer : old) {
+                if (lPlayer.equals(oPlayer)) {
+                    oPlayer.setPosition(lPlayer.getPosition());
+                }
+            }
+        }
+
+        playerList = old.toArray(new Player[old.size()]);
+
+//        for (int i = 0; i <= players.length - 1; i++) {
+////            if (players[i].equals(this.player)) {
+////                System.out.println("First if");
+////                players[i] = this.player;
+////            }
+////
+////            if (players[i].equals(playerList[i])) {
+////                System.out.println("Second if");
+////                playerList[i].setPosition(players[i].getPosition());
+////            }
+//
+//            for (int j = 0; j <= playerList.length - 1; j++) {
+//                if (players[i].equals(playerList[j])) { //Add player if necessary
+//                    System.out.println("Player: " + playerList[j].getNickname() + ", " + playerList[j].getPosition());
+//                    playerList[j].setPosition(players[i].getPosition());
+//                } else {
+//                    list.add(players[i]);
+//                }
+//            }
+//
+//            System.out.println("PlayerList: " + playerList.length);
+//            System.out.println("Players: " + players.length);
+//        }
+//        playerList = (Player[]) list.toArray();
     }
 
     public Player getPlayer() {
