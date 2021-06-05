@@ -30,7 +30,8 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         BorderPane borderPane = new BorderPane();
-        this.game = new Game(borderPane);
+        Scene scene = new Scene(borderPane);
+        this.game = new Game(borderPane, scene);
         borderPane.setCenter(game.getCanvas());
         borderPane.setTop(connectionBar());
 
@@ -39,7 +40,8 @@ public class Main extends Application {
         this.portText.setText("4444");
         this.usernameText.setText("Lars");
 
-        Scene scene = new Scene(borderPane);
+        primaryStage.setMinWidth(600);
+        primaryStage.setMinHeight(400);
         primaryStage.setTitle("Mooie game");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -50,6 +52,8 @@ public class Main extends Application {
         this.portText.setPromptText("Server port");
         this.usernameText.setPromptText("Username");
         ColorPicker colorPicker = new ColorPicker(Color.BLUE);
+
+        //Check for valid input when the join button is pressed.
         this.joinButton.setOnAction(e -> {
             String hostname = "";
             int port = 0;
@@ -60,6 +64,7 @@ public class Main extends Application {
             if (!this.portText.getText().isEmpty()) { port = Integer.parseInt(this.portText.getText()); }
             if (!this.usernameText.getText().isEmpty()) { nickname = this.usernameText.getText(); }
 
+            //If host input is valid we can start the game.
             if (!hostname.isEmpty() && port != 0 && !nickname.isEmpty()) {
                 this.game.start(new Player(
                         new Nickname(nickname),
@@ -76,5 +81,16 @@ public class Main extends Application {
         HBox hBox = new HBox();
         hBox.getChildren().addAll(this.hostnameText, this.portText, this.usernameText, colorPicker, this.joinButton);
         return hBox;
+    }
+
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+        this.game.stop();
+    }
+
+    public static void chatMessageReceived(String msg) {
+        //TODO: Implement chat window/box
+        System.out.println(msg);
     }
 }
