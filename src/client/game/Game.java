@@ -15,9 +15,11 @@ import org.jfree.fx.FXGraphics2D;
 import org.jfree.fx.ResizableCanvas;
 import javafx.scene.control.TextField;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -41,7 +43,11 @@ public class Game implements Updateble {
     //Connection
     private Connection connection;
 
-    public Game(BorderPane borderPane, Scene scene) {
+    //background picture
+    BufferedImage mapPicture;
+
+      public Game(BorderPane borderPane, Scene scene) {
+        this.canvas = new ResizableCanvas(g -> draw(), borderPane);
         this.borderPane = borderPane;
         this.scene = scene;
         this.canvas = new ResizableCanvas(g -> draw(), this.borderPane);
@@ -49,6 +55,12 @@ public class Game implements Updateble {
         this.borderPane.setCenter(this.canvas);
 
         this.gameInputManager = new GameInputManager();
+
+        try {
+            this.mapPicture = ImageIO.read(getClass().getResourceAsStream("/map/netwerkMap.png"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         this.playerSprite = new PlayerSprite();
     }
 
@@ -99,6 +111,9 @@ public class Game implements Updateble {
         this.g2d.setColor(Color.GREEN);
         this.g2d.fillRect(0, 0, 40, 40); //Top left of square is 0, 0.
         this.g2d.setColor(Color.WHITE);
+
+        //place map
+        this.g2d.drawImage(this.mapPicture, -this.mapPicture.getWidth()/2, -this.mapPicture.getHeight()/2, null);
 
         //Draw every player on the server (including your own player).
         if (playerList != null) {
