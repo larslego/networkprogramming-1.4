@@ -43,6 +43,7 @@ public class Main extends Application {
         primaryStage.setMinWidth(600);
         primaryStage.setMinHeight(400);
         primaryStage.setTitle("Mooie game");
+        primaryStage.setMaximized(true);
         primaryStage.setScene(scene);
         primaryStage.show();
     }

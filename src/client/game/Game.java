@@ -5,6 +5,7 @@ import client.game.player.Direction;
 import client.game.player.Player;
 import client.game.player.PlayerSprite;
 import client.interfaces.Updateble;
+import com.sun.glass.ui.Screen;
 import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -50,7 +51,6 @@ public class Game implements Updateble {
         this.canvas = new ResizableCanvas(g -> draw(), borderPane);
         this.borderPane = borderPane;
         this.scene = scene;
-        this.canvas = new ResizableCanvas(g -> draw(), this.borderPane);
         this.g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
         this.borderPane.setCenter(this.canvas);
 
@@ -106,7 +106,7 @@ public class Game implements Updateble {
 
     public void draw() {
         this.g2d.clearRect(0, 0, (int) this.canvas.getWidth(), (int) this.canvas.getHeight());
-        this.g2d.setBackground(Color.white);
+        this.g2d.setBackground(Color.black);
         this.g2d.translate(this.canvas.getWidth() / 2, this.canvas.getHeight() / 2);
         this.g2d.setColor(Color.GREEN);
         this.g2d.fillRect(0, 0, 40, 40); //Top left of square is 0, 0.
