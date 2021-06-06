@@ -55,6 +55,8 @@ public class ConnectionRead implements Runnable, ChatMessage {
                 } else {
                     e.printStackTrace();
                 }
+                this.running = false;
+                this.connection.disconnect();
             } catch (IOException | ClassNotFoundException | ClassCastException e) {
                 e.printStackTrace();
                 this.running = false;
