@@ -214,7 +214,6 @@ public class Game implements Updateble {
         if (playerX != 0 || playerY != 0) {
             this.player.setPosition(new Point2D.Double(this.player.getPosition().getX() + playerX,
                     this.player.getPosition().getY() + playerY));
-            this.player.update(deltaTime);
         }
     }
 

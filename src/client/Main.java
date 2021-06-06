@@ -35,10 +35,7 @@ public class Main extends Application {
         borderPane.setCenter(game.getCanvas());
         borderPane.setTop(connectionBar());
 
-        //PRESET FOR TESTING
-        this.hostnameText.setText("localhost");
         this.portText.setText("4444");
-        this.usernameText.setText("Lars");
 
         primaryStage.setMinWidth(600);
         primaryStage.setMinHeight(400);
