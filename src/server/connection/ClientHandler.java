@@ -125,7 +125,7 @@ public class ClientHandler implements Runnable, server.interfaces.Server {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        this.client.broadcastObject(players);
+                        this.client.broadcastObjectToOthers(this, players);
                     }
                 }
             }

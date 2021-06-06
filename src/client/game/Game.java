@@ -24,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Timer;
+import java.util.TimerTask;
 
 public class Game implements Updateble {
     private BorderPane borderPane;
@@ -48,7 +49,9 @@ public class Game implements Updateble {
     //background picture
     BufferedImage mapPicture;
 
-      public Game(BorderPane borderPane, Scene scene) {
+    private double timerValue = 0;
+
+    public Game(BorderPane borderPane, Scene scene) {
         this.canvas = new ResizableCanvas(g -> draw(), borderPane);
         this.borderPane = borderPane;
         this.scene = scene;
@@ -190,6 +193,16 @@ public class Game implements Updateble {
 
             movePlayer(playerX, playerY, deltaTime);
 
+            this.timerValue += deltaTime;
+            //System.out.println(this.timerValue);
+
+            if (this.timerValue > 0.5) {
+                this.connection.sendObject(this.player.getPosition());
+                this.timerValue = 0;
+            }
+
+//            this.connection.sendObject(this.player.getPosition());
+
 //            this.connection.sendObject(this.player.getDirection());
         }
     }
@@ -211,7 +224,6 @@ public class Game implements Updateble {
             this.player.setPosition(new Point2D.Double(this.player.getPosition().getX() + playerX,
                     this.player.getPosition().getY() + playerY));
             this.player.update(deltaTime);
-            this.connection.sendObject(this.player.getPosition());
         }
     }
 
