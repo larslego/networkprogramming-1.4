@@ -5,7 +5,6 @@ import client.game.player.Direction;
 import client.game.player.Player;
 import client.game.player.PlayerSprite;
 import client.interfaces.Updateble;
-import com.sun.glass.ui.Screen;
 import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -23,8 +22,6 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class Game implements Updateble {
     private BorderPane borderPane;
@@ -164,13 +161,11 @@ public class Game implements Updateble {
         if (this.player != null) {
             int playerX = 0;
             int playerY = 0;
-            int speed = 1;
-            double frameSpeed = 1;
+            double speed = 1 * (deltaTime * 100);
 
             //Set different speed when player is sprinting.
             if (this.gameInputManager.getKeysPressed().contains(KeyCode.SHIFT)) {
-                speed = 2;
-                frameSpeed = 1.5;
+                speed = 2 * (deltaTime * 100);
             }
 
             //Check direction controls.
@@ -194,30 +189,26 @@ public class Game implements Updateble {
             movePlayer(playerX, playerY, deltaTime);
 
             this.timerValue += deltaTime;
-            //System.out.println(this.timerValue);
 
-            if (this.timerValue > 0.5) {
+            if (this.timerValue > 0.2) {
                 this.connection.sendObject(this.player.getPosition());
+                this.connection.sendObject(this.player.getDirection());
                 this.timerValue = 0;
             }
-
-//            this.connection.sendObject(this.player.getPosition());
-
-//            this.connection.sendObject(this.player.getDirection());
         }
     }
 
     public void movePlayer(int playerX, int playerY, double deltaTime) {
-        if (this.player.getPosition().getX() > (this.mapPicture.getWidth() / 2.0)) {
-            this.player.setPosition(new Point2D.Double((this.mapPicture.getWidth() / 2.0) - 5, this.player.getPosition().getY()));
-        } else if (this.player.getPosition().getX() < -(this.mapPicture.getWidth() / 2.0)) {
-            this.player.setPosition(new Point2D.Double((-this.mapPicture.getWidth() / 2.0) + 5, this.player.getPosition().getY()));
+        if (this.player.getPosition().getX() + 25 > (this.mapPicture.getWidth() / 2.0)) { //Right
+            this.player.setPosition(new Point2D.Double((this.mapPicture.getWidth() / 2.0) - 27, this.player.getPosition().getY()));
+        } else if (this.player.getPosition().getX() - 25 < -(this.mapPicture.getWidth() / 2.0)) { //Left
+            this.player.setPosition(new Point2D.Double((-this.mapPicture.getWidth() / 2.0) + 27, this.player.getPosition().getY()));
         }
 
-        if (this.player.getPosition().getY() > (this.mapPicture.getHeight() / 2.0)) {
-            this.player.setPosition(new Point2D.Double(this.player.getPosition().getX(), (this.mapPicture.getHeight() / 2.0) - 5));
-        } else if (this.player.getPosition().getY() < -(this.mapPicture.getHeight() / 2.0)) {
-            this.player.setPosition(new Point2D.Double(this.player.getPosition().getX(), -(this.mapPicture.getHeight() / 2.0) + 5));
+        if (this.player.getPosition().getY() + 25 > (this.mapPicture.getHeight() / 2.0)) { //Bottom
+            this.player.setPosition(new Point2D.Double(this.player.getPosition().getX(), (this.mapPicture.getHeight() / 2.0) - 27));
+        } else if (this.player.getPosition().getY() - 40 < -(this.mapPicture.getHeight() / 2.0)) { //Top
+            this.player.setPosition(new Point2D.Double(this.player.getPosition().getX(), -(this.mapPicture.getHeight() / 2.0) + 42));
         }
 
         if (playerX != 0 || playerY != 0) {
@@ -244,7 +235,7 @@ public class Game implements Updateble {
 
         for (Player lPlayer : list) {
             for (Player oPlayer : old) {
-                if (lPlayer.equals(oPlayer)) {
+                if (lPlayer.equals(oPlayer) && !lPlayer.equals(this.player)) {
                     oPlayer.setPosition(lPlayer.getPosition());
                     oPlayer.setDirection(lPlayer.getDirection());
                 }
