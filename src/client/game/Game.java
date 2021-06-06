@@ -23,6 +23,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Timer;
 
 public class Game implements Updateble {
     private BorderPane borderPane;
@@ -187,14 +188,30 @@ public class Game implements Updateble {
                 playerX += speed;
             }
 
-            if (playerX != 0 || playerY != 0) {
-                this.player.setPosition(new Point2D.Double(this.player.getPosition().getX() + playerX,
-                        this.player.getPosition().getY() + playerY));
-                this.player.update(deltaTime);
-            }
+            movePlayer(playerX, playerY, deltaTime);
 
-            this.connection.sendObject(this.player.getPosition());
 //            this.connection.sendObject(this.player.getDirection());
+        }
+    }
+
+    public void movePlayer(int playerX, int playerY, double deltaTime) {
+        if (this.player.getPosition().getX() > (this.mapPicture.getWidth() / 2.0)) {
+            this.player.setPosition(new Point2D.Double((this.mapPicture.getWidth() / 2.0) - 5, this.player.getPosition().getY()));
+        } else if (this.player.getPosition().getX() < -(this.mapPicture.getWidth() / 2.0)) {
+            this.player.setPosition(new Point2D.Double((-this.mapPicture.getWidth() / 2.0) + 5, this.player.getPosition().getY()));
+        }
+
+        if (this.player.getPosition().getY() > (this.mapPicture.getHeight() / 2.0)) {
+            this.player.setPosition(new Point2D.Double(this.player.getPosition().getX(), (this.mapPicture.getHeight() / 2.0) - 5));
+        } else if (this.player.getPosition().getY() < -(this.mapPicture.getHeight() / 2.0)) {
+            this.player.setPosition(new Point2D.Double(this.player.getPosition().getX(), -(this.mapPicture.getHeight() / 2.0) + 5));
+        }
+
+        if (playerX != 0 || playerY != 0) {
+            this.player.setPosition(new Point2D.Double(this.player.getPosition().getX() + playerX,
+                    this.player.getPosition().getY() + playerY));
+            this.player.update(deltaTime);
+            this.connection.sendObject(this.player.getPosition());
         }
     }
 
