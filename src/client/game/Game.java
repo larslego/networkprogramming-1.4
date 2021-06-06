@@ -194,7 +194,7 @@ public class Game implements Updateble {
             }
 
             this.connection.sendObject(this.player.getPosition());
-            this.connection.sendObject(this.player.getDirection());
+//            this.connection.sendObject(this.player.getDirection());
         }
     }
 

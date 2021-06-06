@@ -38,7 +38,7 @@ public class ClientHandler implements Runnable, server.interfaces.Server {
             this.client = client;
 
             //Retrieve player object
-            Object o = this.objectInputStream.readObject();
+            Object o = this.objectInputStream.readUnshared();
             if (o instanceof Player) {
                 this.player = (Player) o;
             }
@@ -120,6 +120,11 @@ public class ClientHandler implements Runnable, server.interfaces.Server {
                         Server.addPlayer((Player) o);
                         Object[] src = Server.getPlayers().toArray();
                         Player[] players = Arrays.copyOf(src, src.length, Player[].class);
+                        try {
+                            this.objectOutputStream.reset();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         this.client.broadcastObject(players);
                     }
                 }
