@@ -91,7 +91,6 @@ public class Main extends Application {
     }
 
     public static void chatMessageReceived(String msg) {
-        //TODO: Implement chat window/box
         System.out.println(msg);
     }
 }
